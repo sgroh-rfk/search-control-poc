@@ -6,15 +6,16 @@ import com.reflektion.searchcontrol.model.KeyValue;
 import com.reflektion.searchcontrol.model.Message;
 import com.reflektion.searchcontrol.service.KeyService;
 import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -29,7 +30,7 @@ public class KeyController {
     private static long counter = 1;
 
     @Inject
-    public KeyController(KeyService keyService) {
+    public KeyController(@Qualifier("keyServiceImpl")KeyService keyService) {
         this.keyService = keyService;
     }
 
@@ -44,7 +45,7 @@ public class KeyController {
   public ResponseEntity<Set<Key>> getKeys(
           @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) String userId,
           @ApiParam(value = "List the permssions for the given user.") @RequestParam(value = "includePermissions", required = false) Boolean includePermissions,
-          @ApiParam(value = "Filter by key parent.") @RequestParam(value = "parent", required = false) String parent)
+          @ApiParam(value = "Filter by key parent.") @RequestParam(value = "parent", required = false) Long parent)
       throws NotFoundException {
     Set<Key> keys = keyService.getKeys(parent);
     return new ResponseEntity(keys, HttpStatus.OK);
@@ -63,7 +64,7 @@ public class KeyController {
           @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) Long userId,
           @ApiParam(value = "List the permssions for the given user.") @RequestParam(value = "includePermissions", required = false) Boolean includePermissions)
       throws NotFoundException {
-      Key key = keyService.getKeyByKeyName(keyId);
+      Key key = keyService.getKeyByKeyId(keyId);
       if (key == null) {
         throw new NotFoundException(404, "Key not found");
       }
@@ -84,7 +85,7 @@ public class KeyController {
           @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) String userId,
           @ApiParam(value = "Key." ,required=true ) @RequestBody Key key)
           throws Exception {
-    Key keyToUpdate = keyService.getKeyByKeyName(keyId);
+    Key keyToUpdate = keyService.getKeyByKeyId(keyId);
     if (keyToUpdate == null) {
       throw new NotFoundException(404, "Key not found");
     }
@@ -106,7 +107,7 @@ public class KeyController {
           @ApiParam(value = "Filter by live KeyValues.") @RequestParam(value = "live", required = false) Boolean live
 )
       throws NotFoundException {
-      Key key = keyService.getKeyByKeyName(keyId);
+      Key key = keyService.getKeyByKeyId(keyId);
       if (key == null) {
         throw new NotFoundException(404, "Key not found");
       }
@@ -129,7 +130,7 @@ public class KeyController {
           @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) String userId
 )
           throws Exception {
-      Key key = keyService.getKeyByKeyName(keyId);
+      Key key = keyService.getKeyByKeyId(keyId);
       if (key == null) {
         throw new NotFoundException(404, "Key not found");
       }
@@ -157,7 +158,7 @@ public class KeyController {
 )
           throws Exception {
       //TODO: this should be in one service not here
-      Key key = keyService.getKeyByKeyName(keyId);
+      Key key = keyService.getKeyByKeyId(keyId);
       if (key == null) {
         throw new NotFoundException(404, "Key not found");
       }
@@ -183,7 +184,7 @@ public class KeyController {
           @ApiParam(value = "KeyValue." ,required=true ) @RequestBody KeyValue keyValue
 )
           throws Exception {
-      Key key = keyService.getKeyByKeyName(keyId);
+      Key key = keyService.getKeyByKeyId(keyId);
       if (key == null) {
         throw new NotFoundException(404, "Key not found");
       }

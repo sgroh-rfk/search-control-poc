@@ -13,9 +13,9 @@ import java.util.Set;
  */
 public interface KeyService {
 
-    public Key getKeyByKeyName(Long keyId);
+    public Key getKeyByKeyId(Long keyId);
 
-    public Set<Key> getKeys(String parentId);
+    public Set<Key> getKeys(Long parentId);
 
     public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive);
 

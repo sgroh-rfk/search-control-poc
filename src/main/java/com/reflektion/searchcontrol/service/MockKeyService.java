@@ -1,6 +1,5 @@
 package com.reflektion.searchcontrol.service;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.reflektion.searchcontrol.model.Key;
@@ -15,25 +14,25 @@ import java.util.*;
 @Service
 public class MockKeyService implements KeyService{
 
-    private Map<Long,Key> keysByKeyName = Maps.newHashMap();
-    private Map<Long,Map<Long, KeyValue>> keyValuesByKeyName = Maps.newHashMap();
+    private Map<Long,Key> keysByKeyId = Maps.newHashMap();
+    private Map<Long,Map<Long, KeyValue>> keyValuesByKeyId = Maps.newHashMap();
 
     @Override
-    public Key getKeyByKeyName(Long keyName) {
-        return keysByKeyName.get(keyName);
+    public Key getKeyByKeyId(Long keyId) {
+        return keysByKeyId.get(keyId);
     }
 
     @Override
-    public Set<Key> getKeys(String parentKeyName) {
+    public Set<Key> getKeys(Long parentKeyId) {
         Set<Key> values = Sets.newHashSet();
-        if (parentKeyName != null) {
-            for (Key key : new ArrayList<Key>(keysByKeyName.values())) {
-                if (null!=key.getParentKey() && null!= key.getParentKey().getName() && key.getParentKey().getName().equals(parentKeyName)) {
+        if (parentKeyId != null) {
+            for (Key key : new ArrayList<Key>(keysByKeyId.values())) {
+                if (null!=key.getParentKey() && null!= key.getParentKey().getId() && key.getParentKey().getId().equals(parentKeyId)) {
                     values.add(key);
                 }
             }
         } else {
-            values = Sets.newHashSet(keysByKeyName.values());
+            values = Sets.newHashSet(keysByKeyId.values());
         }
         return values;
     }
@@ -42,77 +41,77 @@ public class MockKeyService implements KeyService{
     public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive) {
         Set<KeyValue> values = Sets.newHashSet();
         if (isLive != null) {
-            for (KeyValue value : new ArrayList<KeyValue>(keyValuesByKeyName.get(keyId).values())) {
+            for (KeyValue value : new ArrayList<KeyValue>(keyValuesByKeyId.get(keyId).values())) {
                 if (value.getLive().equals(isLive)) {
                     values.add(value);
                 }
             }
         } else {
-            values = Sets.newHashSet(keyValuesByKeyName.get(keyId).values());
+            values = Sets.newHashSet(keyValuesByKeyId.get(keyId).values());
         }
         return values;
     }
 
     @Override
     public Long createKey(Long keyId, Key key) throws Exception {
-        if (keysByKeyName.containsKey(keyId)) {
-            throw new Exception("ERROR - KeyName already exists");
+        if (keysByKeyId.containsKey(keyId)) {
+            throw new Exception("ERROR - KeyId already exists");
         }
-        keysByKeyName.put(keyId, key);
-        keyValuesByKeyName.put(keyId, Maps.newHashMap());
+        keysByKeyId.put(keyId, key);
+        keyValuesByKeyId.put(keyId, Maps.newHashMap());
         return keyId;
     }
 
     @Override
     public Key updateKey(Long keyId, Key key) throws Exception {
-        if (!keysByKeyName.containsKey(keyId)) {
-            throw new Exception("ERROR - KeyName does not exists");
+        if (!keysByKeyId.containsKey(keyId)) {
+            throw new Exception("ERROR - KeyId does not exists");
         }
-        keysByKeyName.put(keyId, key);
+        keysByKeyId.put(keyId, key);
         return key;
     }
 
     @Override
     public void deleteKey(Long keyId, Key key) throws Exception {
-        if (!keysByKeyName.containsKey(keyId)) {
-            throw new Exception("ERROR - KeyName does not exists");
+        if (!keysByKeyId.containsKey(keyId)) {
+            throw new Exception("ERROR - KeyId does not exists");
         }
-        keysByKeyName.remove(keyId);
-        keyValuesByKeyName.remove(keyId);
+        keysByKeyId.remove(keyId);
+        keyValuesByKeyId.remove(keyId);
     }
 
     @Override
     public Long createKeyValueForKey(Long keyId, KeyValue keyValue) throws Exception {
-        if (!keysByKeyName.containsKey(keyId)) {
-            throw new Exception("ERROR - KeyName does not exists");
+        if (!keysByKeyId.containsKey(keyId)) {
+            throw new Exception("ERROR - KeyId does not exists");
         }
-        keyValuesByKeyName.get(keyId).put(keyValue.getId(), keyValue);
+        keyValuesByKeyId.get(keyId).put(keyValue.getId(), keyValue);
         return keyValue.getId();
     }
 
     @Override
     public KeyValue updateKeyValueForKey(Long keyId, KeyValue keyValue) throws Exception {
-        if (!keysByKeyName.containsKey(keyId)) {
-            throw new Exception("ERROR - KeyName does not exists");
+        if (!keysByKeyId.containsKey(keyId)) {
+            throw new Exception("ERROR - KeyId does not exists");
         }
-        keyValuesByKeyName.get(keyId).put(keyValue.getId(), keyValue);
+        keyValuesByKeyId.get(keyId).put(keyValue.getId(), keyValue);
         return keyValue;
     }
 
     @Override
     public void deleteKeyValue(Long keyId, KeyValue keyValue) throws Exception {
-        if (!keysByKeyName.containsKey(keyId)) {
-            throw new Exception("ERROR - KeyName does not exists");
+        if (!keysByKeyId.containsKey(keyId)) {
+            throw new Exception("ERROR - KeyId does not exists");
         }
-        keyValuesByKeyName.get(keyId).remove(keyValue.getId());
+        keyValuesByKeyId.get(keyId).remove(keyValue.getId());
     }
 
     @Override
     public KeyValue getKeyValuesForKeyIdAndKeyValueId(Long keyId, Long keyValueId) throws Exception {
-        if (!keysByKeyName.containsKey(keyId)) {
-            throw new Exception("ERROR - KeyName does not exists");
+        if (!keysByKeyId.containsKey(keyId)) {
+            throw new Exception("ERROR - KeyId does not exists");
         }
-        return keyValuesByKeyName.get(keyId).get(keyValueId);
+        return keyValuesByKeyId.get(keyId).get(keyValueId);
     }
 
 }
