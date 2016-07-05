@@ -42,7 +42,12 @@ public class Key extends BaseEntity {
     private String schema;
 
     @OneToMany(mappedBy = "key")
+    @JsonProperty("keyValues")
     private java.util.Set<KeyValue> keyValues;
+
+    @OneToMany(mappedBy = "key")
+    @JsonProperty("PermissionKeys")
+    private java.util.Set<PermissionKey> permissions;
 
     public Key(){}
 
@@ -57,6 +62,14 @@ public class Key extends BaseEntity {
 
     public void setKeyValues(Set<KeyValue> keyValues) {
         this.keyValues = keyValues;
+    }
+
+    public Set<PermissionKey> getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(Set<PermissionKey> permissions) {
+        this.permissions = permissions;
     }
 
     public String getDescription() {
