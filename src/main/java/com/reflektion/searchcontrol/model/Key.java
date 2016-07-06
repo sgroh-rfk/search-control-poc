@@ -1,9 +1,12 @@
 package com.reflektion.searchcontrol.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.Type;
+import org.springframework.context.annotation.Lazy;
 
 import javax.persistence.*;
 import javax.persistence.Column;
@@ -41,11 +44,11 @@ public class Key extends BaseEntity {
     @JsonProperty("schema")
     private String schema;
 
-    @OneToMany(mappedBy = "key")
+    @OneToMany(mappedBy = "key", fetch = FetchType.LAZY)
     @JsonProperty("keyValues")
     private java.util.Set<KeyValue> keyValues;
 
-    @OneToMany(mappedBy = "key")
+    @OneToMany(mappedBy = "key", fetch = FetchType.LAZY)
     @JsonProperty("PermissionKeys")
     private java.util.Set<PermissionKey> permissions;
 
@@ -107,5 +110,12 @@ public class Key extends BaseEntity {
     @Override
     protected Class<Key> entityClass() {
         return Key.class;
+    }
+
+    public Key updateWithDTO(KeyDTO keyDTO) {
+        this.setSchema(keyDTO.getSchema());
+        this.setDescription(keyDTO.getDescription());
+        this.setName(keyDTO.getName());
+        return this;
     }
 }

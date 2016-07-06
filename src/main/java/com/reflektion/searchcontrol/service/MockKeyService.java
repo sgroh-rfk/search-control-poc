@@ -2,8 +2,11 @@ package com.reflektion.searchcontrol.service;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.reflektion.searchcontrol.controller.NotFoundException;
 import com.reflektion.searchcontrol.model.Key;
+import com.reflektion.searchcontrol.model.KeyDTO;
 import com.reflektion.searchcontrol.model.KeyValue;
+import com.reflektion.searchcontrol.model.KeyValueDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -16,6 +19,7 @@ public class MockKeyService implements KeyService{
 
     private Map<Long,Key> keysByKeyId = Maps.newHashMap();
     private Map<Long,Map<Long, KeyValue>> keyValuesByKeyId = Maps.newHashMap();
+    private static long counter = 1;
 
     @Override
     public Key getKeyByKeyId(Long keyId) {
@@ -38,7 +42,11 @@ public class MockKeyService implements KeyService{
     }
 
     @Override
-    public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive) {
+    public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive) throws NotFoundException{
+        Key key = getKeyByKeyId(keyId);
+        if (key == null) {
+            throw new NotFoundException(404, "Key not found");
+        }
         Set<KeyValue> values = Sets.newHashSet();
         if (isLive != null) {
             for (KeyValue value : new ArrayList<KeyValue>(keyValuesByKeyId.get(keyId).values())) {
@@ -53,22 +61,26 @@ public class MockKeyService implements KeyService{
     }
 
     @Override
-    public Long createKey(Long keyId, Key key) throws Exception {
-        if (keysByKeyId.containsKey(keyId)) {
+    public Long createKey(KeyDTO key) throws Exception {
+        if (keysByKeyId.containsKey(key.getId())) {
             throw new Exception("ERROR - KeyId already exists");
         }
-        keysByKeyId.put(keyId, key);
-        keyValuesByKeyId.put(keyId, Maps.newHashMap());
-        return keyId;
+        keysByKeyId.put(key.getId(), key.getEntityFromDTO());
+        keyValuesByKeyId.put(key.getId(), Maps.newHashMap());
+        return key.getId();
     }
 
     @Override
-    public Key updateKey(Long keyId, Key key) throws Exception {
-        if (!keysByKeyId.containsKey(keyId)) {
-            throw new Exception("ERROR - KeyId does not exists");
+    public Key updateKey(Long keyId, KeyDTO key) throws NotFoundException {
+        if (keyId==null)
+            throw new NotFoundException(404, "Key not found, should not be null");
+        Key keyToUpdate = getKeyByKeyId(keyId);
+        if (keyToUpdate == null) {
+            throw new NotFoundException(404, "Key not found");
         }
-        keysByKeyId.put(keyId, key);
-        return key;
+        Key updated = key.getEntityFromDTO();
+        keysByKeyId.put(keyId, updated);
+        return updated;
     }
 
     @Override
@@ -81,33 +93,58 @@ public class MockKeyService implements KeyService{
     }
 
     @Override
-    public Long createKeyValueForKey(Long keyId, KeyValue keyValue) throws Exception {
-        if (!keysByKeyId.containsKey(keyId)) {
-            throw new Exception("ERROR - KeyId does not exists");
+    public Long createKeyValueForKey(Long keyId, Long userId, KeyValueDTO keyValue) throws NotFoundException {
+        if (keyId == null)
+            throw new NotFoundException(404, "Key id must not be null");
+        Key key = getKeyByKeyId(keyId);
+        if (key == null) {
+            throw new NotFoundException(404, "Key not found");
         }
-        keyValuesByKeyId.get(keyId).put(keyValue.getId(), keyValue);
+        if (!keysByKeyId.containsKey(keyId)) {
+            throw new NotFoundException(404, "ERROR - KeyId does not exists");
+        }
+        keyValue.setKeyId(counter++);
+        keyValuesByKeyId.get(keyId).put(keyValue.getKeyId(), keyValue.getEntityFromDTO(keyValue));
         return keyValue.getId();
     }
 
     @Override
-    public KeyValue updateKeyValueForKey(Long keyId, KeyValue keyValue) throws Exception {
+    public KeyValue updateKeyValueForKey(Long keyId, Long keyValueId, KeyValueDTO keyValue) throws Exception {
+        if (keyId == null) {
+            throw new NotFoundException(404, "Key id should not be null");
+        }
+        if (keyValueId == null) {
+            throw new NotFoundException(404, "Key value should not be null");
+        }
+        Key key = getKeyByKeyId(keyId);
+        if (key == null) {
+            throw new NotFoundException(404, "Key not found");
+        }
+        keyValue.setId(keyValueId);
         if (!keysByKeyId.containsKey(keyId)) {
             throw new Exception("ERROR - KeyId does not exists");
         }
-        keyValuesByKeyId.get(keyId).put(keyValue.getId(), keyValue);
-        return keyValue;
+        KeyValue kv = keyValue.getEntityFromDTO(keyValue);
+        keyValuesByKeyId.get(keyId).put(keyValue.getId(), kv);
+        return kv;
     }
 
     @Override
-    public void deleteKeyValue(Long keyId, KeyValue keyValue) throws Exception {
+    public Boolean deleteKeyValue(Long keyId, Long keyValueid) throws Exception {
         if (!keysByKeyId.containsKey(keyId)) {
             throw new Exception("ERROR - KeyId does not exists");
         }
-        keyValuesByKeyId.get(keyId).remove(keyValue.getId());
+        keyValuesByKeyId.get(keyId).remove(keyValueid);
+        return true;
     }
 
     @Override
     public KeyValue getKeyValuesForKeyIdAndKeyValueId(Long keyId, Long keyValueId) throws Exception {
+        Key key = getKeyByKeyId(keyId);
+        if (key == null) {
+            throw new NotFoundException(404, "Key not found");
+        }
+        KeyValue keyValue = getKeyValuesForKeyIdAndKeyValueId(keyId, keyValueId);
         if (!keysByKeyId.containsKey(keyId)) {
             throw new Exception("ERROR - KeyId does not exists");
         }

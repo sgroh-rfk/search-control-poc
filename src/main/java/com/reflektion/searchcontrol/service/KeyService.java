@@ -1,7 +1,10 @@
 package com.reflektion.searchcontrol.service;
 
+import com.reflektion.searchcontrol.controller.NotFoundException;
 import com.reflektion.searchcontrol.model.Key;
+import com.reflektion.searchcontrol.model.KeyDTO;
 import com.reflektion.searchcontrol.model.KeyValue;
+import com.reflektion.searchcontrol.model.KeyValueDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,19 +20,19 @@ public interface KeyService {
 
     public Set<Key> getKeys(Long parentId);
 
-    public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive);
+    public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive) throws NotFoundException;
 
-    public Long createKey(Long keyId, Key key) throws Exception;
+    public Long createKey(KeyDTO key) throws Exception;
 
-    public Key updateKey(Long keyId, Key key) throws Exception;
+    public Key updateKey(Long keyId, KeyDTO key) throws NotFoundException;
 
     public void deleteKey(Long keyId, Key key) throws Exception;
 
-    public Long createKeyValueForKey(Long keyId, KeyValue keyValue) throws Exception;
+    public Long createKeyValueForKey(Long keyId, Long userId, KeyValueDTO keyValue) throws NotFoundException;
 
-    public KeyValue updateKeyValueForKey(Long keyId, KeyValue keyValue) throws Exception;
+    public KeyValue updateKeyValueForKey(Long keyId, Long keyValueId, KeyValueDTO keyValue) throws Exception;
 
-    public void deleteKeyValue(Long keyId, KeyValue keyValue) throws Exception;
+    public Boolean deleteKeyValue(Long keyId, Long keyValueId) throws Exception;
 
     KeyValue getKeyValuesForKeyIdAndKeyValueId(Long keyId, Long keyValueId) throws Exception;
 }

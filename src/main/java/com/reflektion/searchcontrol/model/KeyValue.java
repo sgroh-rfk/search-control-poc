@@ -1,6 +1,9 @@
 package com.reflektion.searchcontrol.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.reflektion.searchcontrol.model.permission.User;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -98,20 +101,13 @@ public class KeyValue extends BaseEntity {
         this.live = live;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("class KeyValue {\n");
 
-        sb.append("  keyValueId: ").append(id).append("\n");
-        sb.append("  userId: ").append(user).append("\n");
-        sb.append("  keyName: ").append(keyName).append("\n");
-        sb.append("  value: ").append(value).append("\n");
-        sb.append("  domain: ").append(domain).append("\n");
-        sb.append("  createdTime: ").append(createdTime).append("\n");
-        sb.append("  live: ").append(live).append("\n");
-        sb.append("}\n");
-        return sb.toString();
+    public Key getKey() {
+        return key;
+    }
+
+    public void setKey(Key key) {
+        this.key = key;
     }
 
     @Override
@@ -119,4 +115,13 @@ public class KeyValue extends BaseEntity {
         return KeyValue.class;
     }
 
+    public KeyValue updateWithDTO(KeyValueDTO dto) {
+        this.setLive(dto.getLive());
+        this.setValue(dto.getValue());
+        this.setId(dto.getId());
+        this.setKeyName(dto.getKeyName());
+        this.setDomain(dto.getDomain());
+        this.setCreatedTime(dto.getCreatedTime());
+        return this;
+    }
 }

@@ -26,7 +26,7 @@ public class User extends BaseEntity {
     private String email;
 
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "role_id"}),
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
