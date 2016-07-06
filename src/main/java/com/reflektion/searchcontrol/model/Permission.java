@@ -58,6 +58,12 @@ public class Permission extends BaseEntity {
     }
 
 
+    public Permission updateWithDTO(final PermissionDTO dto){
+        this.setId(dto.getId());
+        this.setPermission(dto.getPermission());
+        return this;
+    }
+
     @Override
     protected Class<Permission> entityClass() {
         return Permission.class;

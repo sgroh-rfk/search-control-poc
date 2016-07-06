@@ -30,4 +30,12 @@ public class PermissionDTO {
     public void setPermission(String permission) {
         this.permission = permission;
     }
+
+    public Permission getEntityFromDTO(final PermissionDTO dto){
+        Permission p = new Permission();
+        p.setId(dto.getId());
+        p.setPermission(dto.getPermission());
+        return p;
+    }
+
 }

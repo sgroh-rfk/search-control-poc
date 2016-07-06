@@ -16,4 +16,7 @@ public interface PermissionKeyRepository extends CrudRepository<PermissionKey, L
 
     @Query("select pk from permission_key pk where pk.key.id = ?1")
     Set<PermissionKey> findPermissionKeyByKeyId(Long keyId);
+
+    @Query("select pk from permission_key pk where pk.key.id = ?1 and pk.permission.id = ?2")
+    PermissionKey findByKeyIdAndPermissionId(Long keyId, Long permissionId);
 }

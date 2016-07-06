@@ -10,6 +10,7 @@ import com.reflektion.searchcontrol.repository.KeyRepository;
 import com.reflektion.searchcontrol.repository.PermissionKeyRepository;
 import com.reflektion.searchcontrol.repository.PermissionRepository;
 import com.reflektion.searchcontrol.repository.UserRepository;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -68,29 +69,32 @@ public class PermissionService {
     }
 
     @Transactional
-    public Boolean addPermissionKey(Long keyId, Long userId) throws  IllegalArgumentException {
-        Set<Permission> permissions = getUserPermissionBasedOnRoles(userId);
+    public Long addPermissionKey(Long keyId, PermissionDTO permissionDTO) throws  IllegalArgumentException {
+        if (keyId == null)
+            throw new IllegalArgumentException("Key id should exist");
         Key k = keyRepository.findById(keyId);
         if (null==k)
             throw new IllegalArgumentException("Key should exist");
-        PermissionKey pk;
-        for(Permission p: permissions){
-            pk = new PermissionKey();
-            pk.setKey(k);
-            pk.setPermission(p);
-            pk = permissionKeyRepository.save(pk);
-            if (null==pk.getId()) throw new IllegalArgumentException("PermissionKey could not be created");
-        }
-        return true;
+        Permission p = permissionDTO.getEntityFromDTO(permissionDTO);
+        p.setId(null);
+        p = permissionRepository.save(p);
+        PermissionKey pk = new PermissionKey();
+        pk.setKey(k);
+        pk.setPermission(p);
+        pk = permissionKeyRepository.save(pk);
+        if (null==p.getId()) throw new IllegalArgumentException("Permission could not be created");
+        if (null==pk.getId()) throw new IllegalArgumentException("PermissionKey could not be created");
+        return p.getId();
     }
 
     @Transactional
-    public Boolean deletePermissionKey(Long keyId, Long userId) throws  IllegalArgumentException {
+    public Boolean deletePermissionsKey(Long keyId, Long userId) throws  IllegalArgumentException {
         Set<PermissionKey> permissionKeys = permissionKeyRepository.findPermissionKeyByKeyId(keyId);
         permissionKeyRepository.delete(permissionKeys);
         return true;
     }
 
+    @Deprecated
     private Set<Permission> getUserPermissionBasedOnRoles(final Long userId) throws IllegalArgumentException {
         Set<Role> roles = userRepository.findUserRoles(userId);
         Set<Permission> permissions = null;
@@ -102,8 +106,57 @@ public class PermissionService {
     }
 
     @Transactional
-    public Boolean updatePermissionKey(Long keyId, Long userId) {
-        deletePermissionKey(keyId, userId);
-        return addPermissionKey(keyId, userId);
+    public Boolean updatePermissionKey(final Long keyId, final Long currentPermissionId, final Long newPermissionId) {
+        if (keyId == null)
+            throw new IllegalArgumentException("Key id should exist");
+        if (currentPermissionId == null)
+            throw new IllegalArgumentException("Current permission id should exist");
+        if (newPermissionId == null)
+            throw new IllegalArgumentException("New permission id should exist");
+        Permission currentPermission = permissionRepository.findById(currentPermissionId);
+        if (currentPermission==null)
+            throw new IllegalArgumentException("Current permission should exist");
+        Permission newPermission = permissionRepository.findById(newPermissionId);
+        if (newPermission==null)
+            throw new IllegalArgumentException("Current permission should exist");
+        Key k = keyRepository.findById(keyId);
+        if (null==k)
+            throw new IllegalArgumentException("Key should exist");
+        PermissionKey pk = permissionKeyRepository.findByKeyIdAndPermissionId(keyId, currentPermissionId);
+        if (null==pk)
+            throw new IllegalArgumentException("Permission Key should exist");
+        pk.setPermission(newPermission);
+        pk = permissionKeyRepository.save(pk);
+        if (null==pk.getId()) throw new IllegalArgumentException("Permission Key could not be updated");
+        return true;
+    }
+
+    public Permission updatePermission(Long permissionId, PermissionDTO permissionDTO) {
+        if (permissionId==null)
+            throw new IllegalArgumentException("Permission id should exist");
+        Permission permission = permissionRepository.findById(permissionId);
+        if (permission==null)
+            throw new IllegalArgumentException("Permission should exist");
+        permission = permission.updateWithDTO(permissionDTO);
+        permission.setId(permissionId);
+        return permissionRepository.save(permission);
+    }
+
+    public Boolean deletePermissionKey(Long keyId, Long permissionId) {
+        if (keyId == null)
+            throw new IllegalArgumentException("Key id should exist");
+        if (permissionId == null)
+            throw new IllegalArgumentException("Permission id should exist");
+        Permission permission = permissionRepository.findById(permissionId);
+        if (permission==null)
+            throw new IllegalArgumentException("Permission should exist");
+        Key k = keyRepository.findById(keyId);
+        if (null==k)
+            throw new IllegalArgumentException("Key should exist");
+        PermissionKey pk = permissionKeyRepository.findByKeyIdAndPermissionId(keyId, permissionId);
+        if (null==pk)
+            throw new IllegalArgumentException("Permission Key should exist");
+        permissionKeyRepository.delete(pk);
+        return true;
     }
 }

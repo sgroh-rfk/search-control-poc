@@ -59,6 +59,23 @@ public class PermissionController {
         return new ResponseEntity(permissionService.addPermission(permission), HttpStatus.CREATED);
     }
 
+    @ApiOperation(value = "Edit a Key permission PUT", notes = "Updates a given permission", response = Permission.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The permission has been successfully updated", response = Permission.class),
+            @ApiResponse(code = 500, message = "Unexpected error", response = Message.class)})
+    @RequestMapping(value = "/{permissionId}",
+            produces = {"application/json"},
+            method = RequestMethod.PUT)
+    public ResponseEntity<Permission> updatePermissionByPermId(
+            @ApiParam(value = "User Identifier or token (depends of the tech decision).", required = true) @RequestHeader("userId") Long userId,
+            @ApiParam(value = "Permission id.", required = true) @PathVariable("permissionId") Long permissionId,
+            @ApiParam(value = "Permission", required = true) @RequestBody PermissionDTO permission
+    )
+            throws NotFoundException {
+        return new ResponseEntity(permissionService.updatePermission(permissionId, permission), HttpStatus.OK);
+    }
+
+
     @ApiOperation(value = "Permission by key name GET", notes = "It returns all the user permissions by key id. ", response = Permission.class, responseContainer = "List")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "A set of permission objects, It should be a List of the Model specified", response = Permission.class),
@@ -74,33 +91,52 @@ public class PermissionController {
         return new ResponseEntity(permissionService.getPermissionByKey(keyId), HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Permission by key name POST", notes = "Adds permission to some key id based on user's permissions.", response = Integer.class)
+    @ApiOperation(value = "Permission by key id POST", notes = "Adds permission to some key id based on user's permissions.", response = Long.class)
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "The permission has been successfully created", response = Integer.class),
-            @ApiResponse(code = 500, message = "Unexpected error", response = Integer.class)})
+            @ApiResponse(code = 201, message = "The permission has been successfully created", response = Long.class),
+            @ApiResponse(code = 500, message = "Unexpected error", response = Long.class)})
     @RequestMapping(value = "/{keyId}",
             produces = {"application/json"},
             method = RequestMethod.POST)
-    public ResponseEntity<Boolean> createPermissionbyKeyName(
+    public ResponseEntity<Long> createPermissionbyKeyName(
             @ApiParam(value = "User Identifier or token (depends of the tech decision).", required = true) @RequestHeader("userId") Long userId,
-            @ApiParam(value = "Key id.", required = true) @RequestBody Long keyId)
+            @ApiParam(value = "Key id.", required = true) @PathVariable Long keyId,
+            @ApiParam(value = "Permission.", required = true) @RequestBody PermissionDTO permission)
             throws NotFoundException {
-        return new ResponseEntity(permissionService.addPermissionKey(keyId, userId), HttpStatus.CREATED);
+        return new ResponseEntity(permissionService.addPermissionKey(keyId, permission), HttpStatus.CREATED);
     }
 
-    @ApiOperation(value = "Permission by key id PUT", notes = "Updates a given permission on the key id specified based on the user's permissions", response = Permission.class)
+    @ApiOperation(value = "Edit a Key permission PUT", notes = "Updates a given permission on the key id specified", response = Permission.class)
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "The permission has been successfully updated", response = Permission.class),
             @ApiResponse(code = 500, message = "Unexpected error", response = Message.class)})
-    @RequestMapping(value = "/{keyId}",
+    @RequestMapping(value = "/{permissionId}/key/{keyId}",
             produces = {"application/json"},
             method = RequestMethod.PUT)
     public ResponseEntity<Permission> updatePermissionByKeyName(
             @ApiParam(value = "User Identifier or token (depends of the tech decision).", required = true) @RequestHeader("userId") Long userId,
+            @ApiParam(value = "Permission id.", required = true) @PathVariable("permissionId") Long currentPermissionId,
+            @ApiParam(value = "Key id.", required = true) @PathVariable("keyId") Long keyId,
+            @ApiParam(value = "New Permission id", required = true) @RequestBody Long newPermissionId
+    )
+            throws NotFoundException {
+        return new ResponseEntity(permissionService.updatePermissionKey(keyId, currentPermissionId, newPermissionId), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Delete a Key permission", notes = "Delete a given permission on the key id specified", response = Permission.class)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "The permission has been successfully updated", response = Permission.class),
+            @ApiResponse(code = 500, message = "Unexpected error", response = Message.class)})
+    @RequestMapping(value = "/{permissionId}/key/{keyId}",
+            produces = {"application/json"},
+            method = RequestMethod.DELETE)
+    public ResponseEntity<Permission> deletePermissionByKeyName(
+            @ApiParam(value = "User Identifier or token (depends of the tech decision).", required = true) @RequestHeader("userId") Long userId,
+            @ApiParam(value = "Permission id.", required = true) @PathVariable("permissionId") Long permissionId,
             @ApiParam(value = "Key id.", required = true) @PathVariable("keyId") Long keyId
     )
             throws NotFoundException {
-        return new ResponseEntity(permissionService.updatePermissionKey(keyId, userId), HttpStatus.OK);
+        return new ResponseEntity(permissionService.deletePermissionKey(keyId, permissionId), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Delete all permission that a key has DELETE", notes = "Deletes all given permission on the key id specified. ", response = Boolean.class)
@@ -115,6 +151,6 @@ public class PermissionController {
             @ApiParam(value = "Key id.", required = true) @RequestParam("keyId") Long keyId
     )
             throws NotFoundException {
-        return new ResponseEntity(permissionService.deletePermissionKey(keyId, userId), HttpStatus.OK);
+        return new ResponseEntity(permissionService.deletePermissionsKey(keyId, userId), HttpStatus.OK);
     }
 }
