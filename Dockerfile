@@ -34,5 +34,4 @@ CMD java -Dserver.port=8090 -Dspring.profiles.active=$ENVIRONMENT -jar rfk-pc-0.
 #docker build -t search-control-poc .
 
 #sample command to run the nodejs box
-#docker run -v $PWD/public/src:/opt/reflektion/dashboard/public/src -v $PWD/apps:/opt/reflektion/dashboard/apps -v $PWD/lib:/opt/reflektion/dashboard/lib -p 3000:3000 -d dashboard-node
-
+#docker run -v $PWD/Projects/search-control-poc/target:/opt/reflektion/search-control-poc -p8090:8090 -e ENVIRONMENT='dev' -d sc-poc:poc
