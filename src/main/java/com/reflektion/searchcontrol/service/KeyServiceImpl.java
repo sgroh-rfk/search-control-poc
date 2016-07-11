@@ -40,9 +40,17 @@ public class KeyServiceImpl implements KeyService {
 
     @Override
     public Set<Key> getKeys(final Long parentId) {
+        Set<Key> keys;
         if (null!=parentId)
-            return Sets.newHashSet(keyRepository.findByParentKey(parentId));
-        return Sets.newHashSet(keyRepository.findAll());
+            keys = Sets.newHashSet(keyRepository.findByParentKey(parentId));
+        else
+            keys = Sets.newHashSet(keyRepository.findAll());
+        keys.stream()
+
+                .forEach(k -> {k.setKeyValues(null);
+                    k.getPermissions().stream().forEach(p ->  p.setKey(null) );
+                });
+        return keys;
     }
 
     @Override
