@@ -16,9 +16,9 @@ import java.util.Set;
  */
 public interface KeyService {
 
-    public Key getKeyByKeyId(Long keyId);
+    public Key getKeyByKeyId(Long keyId, Boolean includePermissions);
 
-    public Set<Key> getKeys(Long parentId);
+    public Set<Key> getKeys(Long parentId, Boolean includePermissions, List<String> names);
 
     public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive) throws NotFoundException;
 

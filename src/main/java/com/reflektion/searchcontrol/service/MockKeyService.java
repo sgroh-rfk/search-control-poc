@@ -22,12 +22,12 @@ public class MockKeyService implements KeyService{
     private static long counter = 1;
 
     @Override
-    public Key getKeyByKeyId(Long keyId) {
+    public Key getKeyByKeyId(Long keyId, Boolean includePermissions) {
         return keysByKeyId.get(keyId);
     }
 
     @Override
-    public Set<Key> getKeys(Long parentKeyId) {
+    public Set<Key> getKeys(Long parentKeyId, Boolean includePermissions, List<String> names) {
         Set<Key> values = Sets.newHashSet();
         if (parentKeyId != null) {
             for (Key key : new ArrayList<Key>(keysByKeyId.values())) {
@@ -43,7 +43,7 @@ public class MockKeyService implements KeyService{
 
     @Override
     public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive) throws NotFoundException{
-        Key key = getKeyByKeyId(keyId);
+        Key key = getKeyByKeyId(keyId, false);
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
         }
@@ -74,7 +74,7 @@ public class MockKeyService implements KeyService{
     public Key updateKey(Long keyId, KeyDTO key) throws NotFoundException {
         if (keyId==null)
             throw new NotFoundException(404, "Key not found, should not be null");
-        Key keyToUpdate = getKeyByKeyId(keyId);
+        Key keyToUpdate = getKeyByKeyId(keyId, false);
         if (keyToUpdate == null) {
             throw new NotFoundException(404, "Key not found");
         }
@@ -96,7 +96,7 @@ public class MockKeyService implements KeyService{
     public Long createKeyValueForKey(Long keyId, Long userId, KeyValueDTO keyValue) throws NotFoundException {
         if (keyId == null)
             throw new NotFoundException(404, "Key id must not be null");
-        Key key = getKeyByKeyId(keyId);
+        Key key = getKeyByKeyId(keyId, false);
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
         }
@@ -116,7 +116,7 @@ public class MockKeyService implements KeyService{
         if (keyValueId == null) {
             throw new NotFoundException(404, "Key value should not be null");
         }
-        Key key = getKeyByKeyId(keyId);
+        Key key = getKeyByKeyId(keyId, false);
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
         }
@@ -140,7 +140,7 @@ public class MockKeyService implements KeyService{
 
     @Override
     public KeyValue getKeyValuesForKeyIdAndKeyValueId(Long keyId, Long keyValueId) throws Exception {
-        Key key = getKeyByKeyId(keyId);
+        Key key = getKeyByKeyId(keyId, false);
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
         }

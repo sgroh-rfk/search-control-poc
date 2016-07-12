@@ -18,5 +18,9 @@ public interface KeyRepository extends CrudRepository<Key, Long> {
     @Query("select k from keytable k where k.parentKey.id = ?1")
     Set<Key> findByParentKey(Long parentKeyId);
 
+    @Query("select k from keytable k where k.parentKey.id = ?1 and k.name in ?2")
+    Set<Key> findByParentKeyAndNames(Long parentKeyId, List<String> names);
 
+    @Query("select k from keytable k where k.name in ?1")
+    Set<Key> findOnlyByNames(List<String> names);
 }

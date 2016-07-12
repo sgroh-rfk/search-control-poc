@@ -41,9 +41,10 @@ public class KeyController {
     public ResponseEntity<Set<Key>> getKeys(
           @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) String userId,
           @ApiParam(value = "List the permssions for the given user.") @RequestParam(value = "includePermissions", required = false) Boolean includePermissions,
+          @ApiParam(value = "Filter by name.", required = false) @RequestParam(value = "name", required = false) List<String> names,
           @ApiParam(value = "Filter by key parent.") @RequestParam(value = "parent", required = false) Long parent)
             throws NotFoundException {
-        Set<Key> keys = keyService.getKeys(parent);
+        Set<Key> keys = keyService.getKeys(parent, includePermissions, names);
         return new ResponseEntity(keys, HttpStatus.OK);
   }
 
@@ -58,9 +59,9 @@ public class KeyController {
     public ResponseEntity<Key> getKeyByKeyName(
           @ApiParam(value = "Key identifier.",required=true ) @PathVariable("keyId") Long keyId,
           @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) Long userId,
-          @ApiParam(value = "List the permssions for the given user.") @RequestParam(value = "includePermissions", required = false) Boolean includePermissions)
+          @ApiParam(value = "List the permissions for the given user.") @RequestParam(value = "includePermissions", required = false) Boolean includePermissions)
             throws NotFoundException {
-        Key key = keyService.getKeyByKeyId(keyId);
+        Key key = keyService.getKeyByKeyId(keyId, includePermissions);
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
         }

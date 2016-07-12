@@ -1,5 +1,6 @@
 package com.reflektion.searchcontrol.service;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import com.reflektion.searchcontrol.controller.NotFoundException;
 import com.reflektion.searchcontrol.model.Key;
@@ -9,9 +10,11 @@ import com.reflektion.searchcontrol.model.KeyValueDTO;
 import com.reflektion.searchcontrol.repository.KeyRepository;
 import com.reflektion.searchcontrol.repository.KeyValueRepository;
 import com.reflektion.searchcontrol.repository.UserRepository;
+import javassist.bytecode.annotation.BooleanMemberValue;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -34,21 +37,78 @@ public class KeyServiceImpl implements KeyService {
     }
 
     @Override
-    public Key getKeyByKeyId(Long keyId) {
-        return keyRepository.findById(keyId);
+    public Key getKeyByKeyId(Long keyId, Boolean includePermissions) {
+        return getKeyByKeyIdPermissions(keyId, includePermissions);
+    }
+
+    private Key getKeyByKeyId(Long keyId) {
+        return getKeyByKeyIdPermissions(keyId, false);
+    }
+
+    private Key getKeyByKeyIdPermissions(Long keyId, Boolean includePermissions) {
+        Key k = keyRepository.findById(keyId);
+        if (Boolean.FALSE.equals(includePermissions)) {
+            k.setPermissions(null);
+            if (k.getParentKey() != null){
+                k.getParentKey().setPermissions(null);
+                k.getParentKey().setKeyValues(null);
+                k.setKeyValues(null);
+            }
+        } else {
+            k.getPermissions().stream().forEach(pk -> {
+                if (!pk.getKey().getId().equals(keyId)){
+                    pk.setPermission(null);
+                }
+                if (k.getParentKey().getPermissions()!=null)
+                    k.getParentKey().getPermissions().stream().forEach(ppk -> {
+                        ppk.setKey(null);
+                        if (ppk.getPermission()!=null) {
+                            ppk.getPermission().setKeys(null);
+                            ppk.setKey(null);
+                        }
+                    });
+                pk.setKey(null);
+
+            });
+        }
+        return k;
     }
 
     @Override
-    public Set<Key> getKeys(final Long parentId) {
+    public Set<Key> getKeys(final Long parentId, Boolean includePermissions,  List<String> names) {
         Set<Key> keys;
-        if (null!=parentId)
+        if (null!=parentId && parentId.longValue()>=0 && names!=null && names.size()>0) {
+            keys = Sets.newHashSet(keyRepository.findByParentKeyAndNames(parentId, names));
+        } else if (parentId!=null && parentId.longValue()>=0) {
             keys = Sets.newHashSet(keyRepository.findByParentKey(parentId));
-        else
+        } else if (names!=null && names.size()>=0) {
+            keys = Sets.newHashSet(keyRepository.findOnlyByNames(names));
+        }
+        else {
             keys = Sets.newHashSet(keyRepository.findAll());
+        }
         keys.stream()
-
-                .forEach(k -> {k.setKeyValues(null);
-                    k.getPermissions().stream().forEach(p ->  p.setKey(null) );
+                .forEach(k -> {
+                    k.setKeyValues(null);
+                    k.getPermissions().stream().forEach(p ->  p.setKey(null));
+                    if (Boolean.FALSE.equals(includePermissions))
+                        k.setPermissions(null);
+                    //Parent permissions
+                    if(k.getParentKey()!=null) {
+                        k.getParentKey().setKeyValues(null);
+                        if (Boolean.FALSE.equals(includePermissions)) {
+                            k.getParentKey().setPermissions(null);
+                        } else {
+                            if (k.getParentKey().getPermissions()!=null)
+                                k.getParentKey().getPermissions().stream().forEach(pk -> {
+                                    pk.setKey(null);
+                                    if (pk.getPermission()!=null) {
+                                        pk.getPermission().setKeys(null);
+                                        pk.setKey(null);
+                                    }
+                                });
+                        }
+                    }
                 });
         return keys;
     }
