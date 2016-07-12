@@ -52,25 +52,34 @@ public class KeyServiceImpl implements KeyService {
             if (k.getParentKey() != null){
                 k.getParentKey().setPermissions(null);
                 k.getParentKey().setKeyValues(null);
-                k.setKeyValues(null);
             }
         } else {
-            k.getPermissions().stream().forEach(pk -> {
-                if (!pk.getKey().getId().equals(keyId)){
-                    pk.setPermission(null);
-                }
-                if (k.getParentKey().getPermissions()!=null)
-                    k.getParentKey().getPermissions().stream().forEach(ppk -> {
-                        ppk.setKey(null);
-                        if (ppk.getPermission()!=null) {
-                            ppk.getPermission().setKeys(null);
-                            ppk.setKey(null);
-                        }
-                    });
-                pk.setKey(null);
+            if (k.getPermissions()!=null)
+                k.getPermissions().stream().forEach(pk -> {
+                    if (!pk.getKey().getId().equals(keyId)){
+                        pk.setPermission(null);
+                    }
+                    else if (pk.getPermission()!=null) {
+                        pk.getPermission().setRoles(null);
+                    }
+                    pk.setKey(null);
+                });
 
-            });
+                if (k.getParentKey()!= null) {
+                    if (k.getParentKey().getPermissions()!=null)
+                        k.getParentKey().getPermissions().stream().forEach(ppk -> {
+                            ppk.setKey(null);
+                            if (ppk.getPermission()!=null) {
+                                ppk.getPermission().setKeys(null);
+                                ppk.getPermission().setRoles(null);
+                                ppk.setKey(null);
+                            }
+                        });
+                    k.getParentKey().setKeyValues(null);
+                }
+
         }
+        k.setKeyValues(null);
         return k;
     }
 
@@ -90,7 +99,8 @@ public class KeyServiceImpl implements KeyService {
         keys.stream()
                 .forEach(k -> {
                     k.setKeyValues(null);
-                    k.getPermissions().stream().forEach(p ->  p.setKey(null));
+                    if (k.getPermissions()!=null)
+                        k.getPermissions().stream().forEach(p ->  p.setKey(null));
                     if (Boolean.FALSE.equals(includePermissions))
                         k.setPermissions(null);
                     //Parent permissions
