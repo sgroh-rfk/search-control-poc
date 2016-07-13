@@ -20,7 +20,7 @@ public interface KeyService {
 
     public Set<Key> getKeys(Long parentId, Boolean includePermissions, List<String> names);
 
-    public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive) throws NotFoundException;
+    public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive, List<String> domains) throws NotFoundException;
 
     public Long createKey(KeyDTO key) throws Exception;
 

@@ -11,7 +11,6 @@ import com.reflektion.searchcontrol.model.permission.User;
 import com.reflektion.searchcontrol.repository.KeyRepository;
 import com.reflektion.searchcontrol.repository.KeyValueRepository;
 import com.reflektion.searchcontrol.repository.UserRepository;
-import javassist.bytecode.annotation.BooleanMemberValue;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -128,17 +127,21 @@ public class KeyServiceImpl implements KeyService {
     }
 
     @Override
-    public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive) throws NotFoundException{
-        //TODO: filter by not deleted attribute
+    public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive, List<String> domains) throws NotFoundException{
         Key key = getKeyByKeyId(keyId);
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
         }
         Set<KeyValue> keyValues;
-        if (isLive==null)
-            keyValues = Sets.newHashSet(keyValueRepository.findAllByKeyId(keyId));
-        else
+        if (isLive!=null && domains!=null && domains.size()>0){
+            keyValues = Sets.newHashSet(keyValueRepository.findAllByKeyIdIsLiveAndDomains(keyId, isLive, domains));
+        }
+        else if (isLive!=null)
             keyValues = Sets.newHashSet(keyValueRepository.findAllByKeyId(keyId, isLive));
+        else if (domains!=null && domains.size()>0)
+            keyValues = Sets.newHashSet(keyValueRepository.findAllByKeyAndDomains(keyId, domains));
+        else
+            keyValues = Sets.newHashSet(keyValueRepository.findAllByKeyId(keyId));
         keyValues.stream()
                 .filter(kv -> kv.getKey()!=null)
                 .forEach(kv -> kv.getKey().setKeyValues(null));

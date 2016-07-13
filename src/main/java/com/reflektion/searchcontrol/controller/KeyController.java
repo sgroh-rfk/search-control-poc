@@ -99,10 +99,11 @@ public class KeyController {
     public ResponseEntity<Set<KeyValue>> getKeyValuesForKeyName(
           @ApiParam(value = "Key identifier.",required=true ) @PathVariable("keyId") Long keyId,
           @ApiParam(value = "User email." ,required=true ) @RequestHeader(value="userEmail", required=true) String userEmail,
-          @ApiParam(value = "Filter by live KeyValues.") @RequestParam(value = "live", required = false) Boolean live
+          @ApiParam(value = "Filter by live.") @RequestParam(value = "live", required = false) Boolean live,
+          @ApiParam(value = "Filter by domain.", required = false) @RequestParam(value = "domain", required = false) List<String> domains
     ) throws NotFoundException {
         //TODO: Add here a call to permissions to see if the user has the right access
-        return new ResponseEntity(keyService.getKeyValuesForKey(keyId, live), HttpStatus.OK);
+        return new ResponseEntity(keyService.getKeyValuesForKey(keyId, live, domains), HttpStatus.OK);
     }
 
 

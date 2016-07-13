@@ -42,7 +42,7 @@ public class MockKeyService implements KeyService{
     }
 
     @Override
-    public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive) throws NotFoundException{
+    public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive, List<String> domains) throws NotFoundException{
         Key key = getKeyByKeyId(keyId, false);
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
