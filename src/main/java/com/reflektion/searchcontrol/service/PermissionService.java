@@ -88,7 +88,7 @@ public class PermissionService {
     }
 
     @Transactional
-    public Boolean deletePermissionsKey(Long keyId, Long userId) throws  IllegalArgumentException {
+    public Boolean deletePermissionsKey(Long keyId, String userEmail) throws  IllegalArgumentException {
         Set<PermissionKey> permissionKeys = permissionKeyRepository.findPermissionKeyByKeyId(keyId);
         permissionKeyRepository.delete(permissionKeys);
         return true;

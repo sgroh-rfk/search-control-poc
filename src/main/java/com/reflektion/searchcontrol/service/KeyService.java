@@ -28,9 +28,9 @@ public interface KeyService {
 
     public void deleteKey(Long keyId, Key key) throws Exception;
 
-    public Long createKeyValueForKey(Long keyId, Long userId, KeyValueDTO keyValue) throws NotFoundException;
+    public Long createKeyValueForKey(Long keyId, String userEmail, KeyValueDTO keyValue) throws NotFoundException;
 
-    public KeyValue updateKeyValueForKey(Long keyId, Long keyValueId, KeyValueDTO keyValue) throws Exception;
+    public KeyValue updateKeyValueForKey(Long keyId, Long keyValueId, KeyValueDTO keyValue, String userEmail) throws Exception;
 
     public Boolean deleteKeyValue(Long keyId, Long keyValueId) throws Exception;
 

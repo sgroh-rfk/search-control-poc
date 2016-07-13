@@ -67,7 +67,7 @@ public class PermissionController {
             produces = {"application/json"},
             method = RequestMethod.PUT)
     public ResponseEntity<Permission> updatePermissionByPermId(
-            @ApiParam(value = "User Identifier or token (depends of the tech decision).", required = true) @RequestHeader("userId") Long userId,
+            @ApiParam(value = "User email", required = true) @RequestHeader("userEmail") String userEmail,
             @ApiParam(value = "Permission id.", required = true) @PathVariable("permissionId") Long permissionId,
             @ApiParam(value = "Permission", required = true) @RequestBody PermissionDTO permission
     )
@@ -84,7 +84,7 @@ public class PermissionController {
             produces = {"application/json"},
             method = RequestMethod.GET)
     public ResponseEntity<Set<Permission>> getPermissionsByKeyName(
-            @ApiParam(value = "User Identifier or token (depends of the tech decision).", required = true) @RequestHeader("userId") String userId,
+            @ApiParam(value = "User Email", required = true) @RequestHeader("userEmail") String userEmail,
             @ApiParam(value = "Key id.", required = true) @PathVariable("keyId") Long keyId,
             @ApiParam(value = "Actions. (i.e: r, w, x)", required = false) @RequestParam(value = "action", required = false) List<String> action)
             throws NotFoundException {
@@ -99,7 +99,7 @@ public class PermissionController {
             produces = {"application/json"},
             method = RequestMethod.POST)
     public ResponseEntity<Long> createPermissionbyKeyName(
-            @ApiParam(value = "User Identifier or token (depends of the tech decision).", required = true) @RequestHeader("userId") Long userId,
+            @ApiParam(value = "User Email.", required = true) @RequestHeader("userEmail") String userEmail,
             @ApiParam(value = "Key id.", required = true) @PathVariable Long keyId,
             @ApiParam(value = "Permission.", required = true) @RequestBody PermissionDTO permission)
             throws NotFoundException {
@@ -114,7 +114,7 @@ public class PermissionController {
             produces = {"application/json"},
             method = RequestMethod.PUT)
     public ResponseEntity<Permission> updatePermissionByKeyName(
-            @ApiParam(value = "User Identifier or token (depends of the tech decision).", required = true) @RequestHeader("userId") Long userId,
+            @ApiParam(value = "User Email", required = true) @RequestHeader("userEmail") String userEmail,
             @ApiParam(value = "Permission id.", required = true) @PathVariable("permissionId") Long currentPermissionId,
             @ApiParam(value = "Key id.", required = true) @PathVariable("keyId") Long keyId,
             @ApiParam(value = "New Permission id", required = true) @RequestBody Long newPermissionId
@@ -131,7 +131,7 @@ public class PermissionController {
             produces = {"application/json"},
             method = RequestMethod.DELETE)
     public ResponseEntity<Permission> deletePermissionByKeyName(
-            @ApiParam(value = "User Identifier or token (depends of the tech decision).", required = true) @RequestHeader("userId") Long userId,
+            @ApiParam(value = "User Email.", required = true) @RequestHeader("userEmail") String userEmail,
             @ApiParam(value = "Permission id.", required = true) @PathVariable("permissionId") Long permissionId,
             @ApiParam(value = "Key id.", required = true) @PathVariable("keyId") Long keyId
     )
@@ -147,10 +147,10 @@ public class PermissionController {
             produces = {"application/json"},
             method = RequestMethod.DELETE)
     public ResponseEntity deletePermissionByKeyName(
-            @ApiParam(value = "User Identifier or token (depends of the tech decision).", required = true) @RequestHeader("userId") Long userId,
+            @ApiParam(value = "User email.", required = true) @RequestHeader("userEmail") String userEmail,
             @ApiParam(value = "Key id.", required = true) @RequestParam("keyId") Long keyId
     )
             throws NotFoundException {
-        return new ResponseEntity(permissionService.deletePermissionsKey(keyId, userId), HttpStatus.OK);
+        return new ResponseEntity(permissionService.deletePermissionsKey(keyId, userEmail), HttpStatus.OK);
     }
 }

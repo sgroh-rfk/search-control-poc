@@ -93,7 +93,7 @@ public class MockKeyService implements KeyService{
     }
 
     @Override
-    public Long createKeyValueForKey(Long keyId, Long userId, KeyValueDTO keyValue) throws NotFoundException {
+    public Long createKeyValueForKey(Long keyId, String userEmail, KeyValueDTO keyValue) throws NotFoundException {
         if (keyId == null)
             throw new NotFoundException(404, "Key id must not be null");
         Key key = getKeyByKeyId(keyId, false);
@@ -109,7 +109,7 @@ public class MockKeyService implements KeyService{
     }
 
     @Override
-    public KeyValue updateKeyValueForKey(Long keyId, Long keyValueId, KeyValueDTO keyValue) throws Exception {
+    public KeyValue updateKeyValueForKey(Long keyId, Long keyValueId, KeyValueDTO keyValue, String userEmail) throws Exception {
         if (keyId == null) {
             throw new NotFoundException(404, "Key id should not be null");
         }

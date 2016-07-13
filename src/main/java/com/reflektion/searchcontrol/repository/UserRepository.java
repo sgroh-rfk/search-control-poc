@@ -15,6 +15,8 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     User findById(Long id);
 
+    User findByEmail(String email);
+
     @Query("select u.roles from user u left join u.roles where u.id = ?1")
     Set<Role> findUserRoles(Long userId);
 

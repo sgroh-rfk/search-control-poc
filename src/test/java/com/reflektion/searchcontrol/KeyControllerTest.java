@@ -39,7 +39,7 @@ public class KeyControllerTest {
 	@Test
 	public void getHello() throws Exception {
 		mvc.perform(MockMvcRequestBuilders.get("/key")
-				.header("userId","userIdTest")
+				.header("userEmail","userIdTest")
 				.accept(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 	}

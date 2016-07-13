@@ -7,6 +7,7 @@ import com.reflektion.searchcontrol.model.Key;
 import com.reflektion.searchcontrol.model.KeyDTO;
 import com.reflektion.searchcontrol.model.KeyValue;
 import com.reflektion.searchcontrol.model.KeyValueDTO;
+import com.reflektion.searchcontrol.model.permission.User;
 import com.reflektion.searchcontrol.repository.KeyRepository;
 import com.reflektion.searchcontrol.repository.KeyValueRepository;
 import com.reflektion.searchcontrol.repository.UserRepository;
@@ -26,14 +27,17 @@ public class KeyServiceImpl implements KeyService {
     KeyRepository keyRepository;
     UserRepository userRepository;
     KeyValueRepository keyValueRepository;
+    UserService userService;
 
     @Inject
     public KeyServiceImpl(KeyRepository keyRepository,
                           UserRepository userRepository,
-                          KeyValueRepository keyValueRepository){
+                          KeyValueRepository keyValueRepository,
+                          UserService userService){
         this.keyRepository = keyRepository;
         this.userRepository = userRepository;
         this.keyValueRepository = keyValueRepository;
+        this.userService = userService;
     }
 
     @Override
@@ -125,6 +129,7 @@ public class KeyServiceImpl implements KeyService {
 
     @Override
     public Set<KeyValue> getKeyValuesForKey(Long keyId, Boolean isLive) throws NotFoundException{
+        //TODO: filter by not deleted attribute
         Key key = getKeyByKeyId(keyId);
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
@@ -170,11 +175,11 @@ public class KeyServiceImpl implements KeyService {
     }
 
     @Override
-    public Long createKeyValueForKey(Long keyId, Long userId, KeyValueDTO keyValue) throws NotFoundException {
+    public Long createKeyValueForKey(Long keyId, String userEmail, KeyValueDTO keyValue) throws NotFoundException {
         if (keyId == null)
             throw new NotFoundException(404, "Key id must not be null");
 
-        if (userId == null)
+        if (Strings.isNullOrEmpty(userEmail))
             throw new NotFoundException(404, "User id must not be null");
         Key key = getKeyByKeyId(keyId);
         if (key == null) {
@@ -183,14 +188,17 @@ public class KeyServiceImpl implements KeyService {
         KeyValue kv = new KeyValue();
         kv = kv.updateWithDTO(keyValue);
         kv.setKey(key);
-        kv.setUser(userRepository.findById(userId));
+        kv.setUser(userRepository.findByEmail(userEmail));
         kv.setId(null);
         kv = keyValueRepository.save(kv);
         return kv.getId();
     }
 
     @Override
-    public KeyValue updateKeyValueForKey(Long keyId, Long keyValueId, KeyValueDTO keyValue) throws NotFoundException {
+    public KeyValue updateKeyValueForKey(Long keyId, Long keyValueId, KeyValueDTO keyValue, String userEmail) throws NotFoundException {
+        if (Strings.isNullOrEmpty(userEmail)){
+            throw new NotFoundException(404, "user email should not be null");
+        }
         if (keyId == null) {
             throw new NotFoundException(404, "Key id should not be null");
         }
@@ -208,6 +216,8 @@ public class KeyServiceImpl implements KeyService {
             throw new NotFoundException(404, "KeyValue not found");
         }
         kv = kv.updateWithDTO(keyValue);
+        User u = userRepository.findByEmail(userEmail);
+        kv.setUser(u);
         kv = keyValueRepository.save(kv);
         if (null!=kv && kv.getKey()!=null)
             kv.getKey().setKeyValues(null);

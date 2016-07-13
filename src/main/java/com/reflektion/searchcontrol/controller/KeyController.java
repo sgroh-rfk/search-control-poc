@@ -39,11 +39,12 @@ public class KeyController {
         produces = { "application/json" },
         method = RequestMethod.GET)
     public ResponseEntity<Set<Key>> getKeys(
-          @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) String userId,
+          @ApiParam(value = "User email." ,required=true ) @RequestHeader(value="userEmail", required=true) String userEmail,
           @ApiParam(value = "List the permssions for the given user.") @RequestParam(value = "includePermissions", required = false) Boolean includePermissions,
           @ApiParam(value = "Filter by name.", required = false) @RequestParam(value = "name", required = false) List<String> names,
           @ApiParam(value = "Filter by key parent.") @RequestParam(value = "parent", required = false) Long parent)
             throws NotFoundException {
+        //TODO: Add here a call to permissions to see if the user has the right access
         Set<Key> keys = keyService.getKeys(parent, includePermissions, names);
         return new ResponseEntity(keys, HttpStatus.OK);
   }
@@ -58,9 +59,10 @@ public class KeyController {
     method = RequestMethod.GET)
     public ResponseEntity<Key> getKeyByKeyName(
           @ApiParam(value = "Key identifier.",required=true ) @PathVariable("keyId") Long keyId,
-          @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) Long userId,
+          @ApiParam(value = "User email." ,required=true ) @RequestHeader(value="userEmail", required=true) String userEmail,
           @ApiParam(value = "List the permissions for the given user.") @RequestParam(value = "includePermissions", required = false) Boolean includePermissions)
             throws NotFoundException {
+        //TODO: Add here a call to permissions to see if the user has the right access
         Key key = keyService.getKeyByKeyId(keyId, includePermissions);
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
@@ -79,10 +81,10 @@ public class KeyController {
         method = RequestMethod.PUT)
     public ResponseEntity<Key> updateKeyByKeyName(
           @ApiParam(value = "Key identifier.",required=true ) @PathVariable("keyId") Long keyId,
-          @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) String userId,
+          @ApiParam(value = "User email." ,required=true ) @RequestHeader(value="userEmail", required=true) String userId,
           @ApiParam(value = "Key." ,required=true ) @RequestBody KeyDTO key)
           throws Exception {
-
+        //TODO: Add here a call to permissions to see if the user has the right access
         return new ResponseEntity(keyService.updateKey(keyId, key), HttpStatus.OK);
     }
 
@@ -96,9 +98,10 @@ public class KeyController {
         method = RequestMethod.GET)
     public ResponseEntity<Set<KeyValue>> getKeyValuesForKeyName(
           @ApiParam(value = "Key identifier.",required=true ) @PathVariable("keyId") Long keyId,
-          @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) String userId,
+          @ApiParam(value = "User email." ,required=true ) @RequestHeader(value="userEmail", required=true) String userEmail,
           @ApiParam(value = "Filter by live KeyValues.") @RequestParam(value = "live", required = false) Boolean live
     ) throws NotFoundException {
+        //TODO: Add here a call to permissions to see if the user has the right access
         return new ResponseEntity(keyService.getKeyValuesForKey(keyId, live), HttpStatus.OK);
     }
 
@@ -113,8 +116,9 @@ public class KeyController {
     public ResponseEntity<KeyValue> getKeyValueForKeyNameAndKeyValueId(
           @ApiParam(value = "Key identifier.",required=true ) @PathVariable("keyId") Long keyId,
           @ApiParam(value = "KeyValue identifier.",required=true ) @PathVariable("keyValueId") Long keyValueId,
-          @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) String userId
+          @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userEmail", required=true) String userEmail
         ) throws Exception {
+        //TODO: Add here a call to permissions to see if the user has the right access
         KeyValue keyValue = keyService.getKeyValuesForKeyIdAndKeyValueId(keyId, keyValueId);
 
         return new ResponseEntity<List<KeyValue>>(HttpStatus.OK).ok(keyValue);
@@ -131,12 +135,13 @@ public class KeyController {
     method = RequestMethod.PUT)
   public ResponseEntity<KeyValue> keyKeyNameValueKeyValueIdPut(
           @ApiParam(value = "Key identifier.",required=true ) @PathVariable("keyId") Long keyId,
-          @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) Long userId,
+          @ApiParam(value = "User email." ,required=true ) @RequestHeader(value="userEmail", required=true) String userEmail,
           @ApiParam(value = "KeyValue identifier.",required=true ) @PathVariable("keyValueId") Long keyValueId,
           @ApiParam(value = "KeyValue." ,required=true ) @RequestBody KeyValueDTO keyValue
 )
           throws Exception {
-        KeyValue kv = keyService.updateKeyValueForKey(keyId, keyValueId, keyValue);
+      //TODO: Add here a call to permissions to see if the user has the right access
+      KeyValue kv = keyService.updateKeyValueForKey(keyId, keyValueId, keyValue, userEmail);
         return new ResponseEntity(kv, HttpStatus.OK);
   }
 
@@ -150,10 +155,11 @@ public class KeyController {
             method = RequestMethod.DELETE)
     public ResponseEntity<Boolean> keyKeyNameValueKeyValueIdDelete(
             @ApiParam(value = "Key identifier.",required=true ) @PathVariable("keyId") Long keyId,
-            @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) Long userId,
+            @ApiParam(value = "User email." ,required=true ) @RequestHeader(value="userEmail", required=true) String userEmail,
             @ApiParam(value = "KeyValue identifier.",required=true ) @PathVariable("keyValueId") Long keyValueId
     )
             throws Exception {
+        //TODO: Add here a call to permissions to see if the user has the right access
         return new ResponseEntity(keyService.deleteKeyValue(keyId, keyValueId), HttpStatus.OK);
     }
 
@@ -167,12 +173,12 @@ public class KeyController {
     method = RequestMethod.POST)
   public ResponseEntity<Long> keyKeyNameValuePost(
           @ApiParam(value = "Key identifier.",required=true ) @PathVariable("keyId") Long keyId,
-          @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) Long userId,
+          @ApiParam(value = "User email." ,required=true ) @RequestHeader(value="userEmail", required=true) String userEmail,
           @ApiParam(value = "KeyValue." ,required=true ) @RequestBody KeyValueDTO keyValue
 )
           throws Exception {
-
-      return new ResponseEntity(keyService.createKeyValueForKey(keyId, userId, keyValue), HttpStatus.CREATED);
+      //TODO: Add here a call to permissions to see if the user has the right access
+      return new ResponseEntity(keyService.createKeyValueForKey(keyId, userEmail, keyValue), HttpStatus.CREATED);
   }
 
     @ApiOperation(value = "Key", notes = "It creates a new key. ", response = Long.class)
@@ -183,10 +189,10 @@ public class KeyController {
     produces = { "application/json" },
     method = RequestMethod.POST)
     public ResponseEntity<Long> keyPost(
-          @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userId", required=true) Long userId,
+          @ApiParam(value = "User email." ,required=true ) @RequestHeader(value="userEmail", required=true) String userEmail,
           @ApiParam(value = "Key." ,required=true ) @RequestBody KeyDTO key)
           throws Exception {
-
+      //TODO: Add here a call to permissions to see if the user has the right access
       if (Strings.isNullOrEmpty(key.getName())) {
         throw new Exception("The keyName can not be null");
       }
