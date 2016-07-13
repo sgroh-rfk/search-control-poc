@@ -53,6 +53,11 @@ public class KeyValue extends BaseEntity {
     @JsonProperty("live")
     private Boolean live = null;
 
+    @Column(name = "deleted")
+    @ApiModelProperty(value = "KeyValue deleted.")
+    @JsonProperty("deleted")
+    private Boolean deleted = null;
+
     public User getUser() {
         return user;
     }
@@ -101,6 +106,13 @@ public class KeyValue extends BaseEntity {
         this.live = live;
     }
 
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+    }
 
     public Key getKey() {
         return key;
@@ -122,6 +134,7 @@ public class KeyValue extends BaseEntity {
         this.setKeyName(dto.getKeyName());
         this.setDomain(dto.getDomain());
         this.setCreatedTime(dto.getCreatedTime());
+        //Deleted is not set here to prevent that updates deletes it
         return this;
     }
 }

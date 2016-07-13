@@ -119,6 +119,7 @@ public class KeyController {
           @ApiParam(value = "User identifier." ,required=true ) @RequestHeader(value="userEmail", required=true) String userEmail
         ) throws Exception {
         //TODO: Add here a call to permissions to see if the user has the right access
+
         KeyValue keyValue = keyService.getKeyValuesForKeyIdAndKeyValueId(keyId, keyValueId);
 
         return new ResponseEntity<List<KeyValue>>(HttpStatus.OK).ok(keyValue);

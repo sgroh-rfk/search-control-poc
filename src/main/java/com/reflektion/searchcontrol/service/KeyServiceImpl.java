@@ -178,9 +178,15 @@ public class KeyServiceImpl implements KeyService {
     public Long createKeyValueForKey(Long keyId, String userEmail, KeyValueDTO keyValue) throws NotFoundException {
         if (keyId == null)
             throw new NotFoundException(404, "Key id must not be null");
-
-        if (Strings.isNullOrEmpty(userEmail))
+        User user;
+        if (Strings.isNullOrEmpty(userEmail)){
             throw new NotFoundException(404, "User id must not be null");
+        } else {
+            user = userRepository.findByEmail(userEmail);
+            if (user==null){
+                throw new NotFoundException(404, "User does not exists");
+            }
+        }
         Key key = getKeyByKeyId(keyId);
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
@@ -188,16 +194,23 @@ public class KeyServiceImpl implements KeyService {
         KeyValue kv = new KeyValue();
         kv = kv.updateWithDTO(keyValue);
         kv.setKey(key);
-        kv.setUser(userRepository.findByEmail(userEmail));
+        kv.setUser(user);
         kv.setId(null);
+        kv.setDeleted(false);
         kv = keyValueRepository.save(kv);
         return kv.getId();
     }
 
     @Override
     public KeyValue updateKeyValueForKey(Long keyId, Long keyValueId, KeyValueDTO keyValue, String userEmail) throws NotFoundException {
+        User user;
         if (Strings.isNullOrEmpty(userEmail)){
             throw new NotFoundException(404, "user email should not be null");
+        }  else {
+            user = userRepository.findByEmail(userEmail);
+            if (user==null){
+             throw new NotFoundException(404, "User does not exists");
+            }
         }
         if (keyId == null) {
             throw new NotFoundException(404, "Key id should not be null");
@@ -216,8 +229,7 @@ public class KeyServiceImpl implements KeyService {
             throw new NotFoundException(404, "KeyValue not found");
         }
         kv = kv.updateWithDTO(keyValue);
-        User u = userRepository.findByEmail(userEmail);
-        kv.setUser(u);
+        kv.setUser(user);
         kv = keyValueRepository.save(kv);
         if (null!=kv && kv.getKey()!=null)
             kv.getKey().setKeyValues(null);
@@ -233,8 +245,10 @@ public class KeyServiceImpl implements KeyService {
             throw new NotFoundException(404, "Key value id should not be null");
         }
         KeyValue kv = getKeyValuesForKeyIdAndKeyValueId(keyId, keyValueId);
-        keyValueRepository.delete(kv);
-        return true;
+        // keyValueRepository.delete(kv);
+        kv.setDeleted(true); //Performs a logical delete
+        keyValueRepository.save(kv);
+        return kv.getId()!=0;
     }
 
     @Override
@@ -248,7 +262,7 @@ public class KeyServiceImpl implements KeyService {
         }
         KeyValue keyValue = keyValueRepository.findById(keyValueId);
         if (keyValue == null) {
-            throw new NotFoundException(404, "KeyValue not found, could not be null");
+            throw new NotFoundException(404, "KeyValue not found");
         }
         if (keyValue.getKey()!=null)
             keyValue.getKey().setKeyValues(null);

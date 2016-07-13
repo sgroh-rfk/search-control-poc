@@ -144,7 +144,11 @@ public class MockKeyService implements KeyService{
         if (key == null) {
             throw new NotFoundException(404, "Key not found");
         }
-        KeyValue keyValue = getKeyValuesForKeyIdAndKeyValueId(keyId, keyValueId);
+        try {
+            KeyValue keyValue = getKeyValuesForKeyIdAndKeyValueId(keyId, keyValueId);
+        } catch(NotFoundException nfe){
+            throw nfe;
+        }
         if (!keysByKeyId.containsKey(keyId)) {
             throw new Exception("ERROR - KeyId does not exists");
         }
